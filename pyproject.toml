@@ -1,0 +1,26 @@
+[project]
+name = "pysnake"
+description = "Versin of snake implemented in Python."
+readme = "README.md"
+dynamic = ["version"]
+
+authors = [
+    {name = "Elliot Sloman"},
+]
+
+requires-python = ">= 3.11"
+
+dependencies = [
+    "pygame"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pre-commit",
+    "pytest"
+]
+
+[project.urls]
+Repository = "https://github.com/ESloman/pysnake.git"
+Issues = "https://github.com/ESloman/pysnake/issues"
