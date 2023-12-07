@@ -1,47 +1,95 @@
 """Main entrypoint file."""
 
+from enum import IntEnum
+
 import pygame
 
-DIRECTIONS = [
-    (0, -1),  # UP
-    (1, 0),  # RIGHT
-    (-1, 0),  # LEFt
-    (0, 1),  # DOWN
-]
+
+class Direction(IntEnum):
+    """Direction enum."""
+
+    UP = 0
+    DOWN = 1
+    RIGHT = 2
+    LEFT = 3
+
+
+# map the direction enums to the corresponding vector
+DIRECTIONS: dict[Direction, pygame.Vector2] = {
+    Direction.UP: pygame.Vector2(0, -1),
+    Direction.DOWN: pygame.Vector2(0, 1),
+    Direction.RIGHT: pygame.Vector2(1, 0),
+    Direction.LEFT: pygame.Vector2(-1, 0),
+}
+
+
+def _get_direction(direction: Direction) -> Direction:
+    """Function to get the direction from player input.
+
+    Queries the active keys pressed and returns the Direction from that.
+    Returns the current direction if nothing is pressed.
+
+    Allows WASD or standard keyboard arrow movement.
+
+    Args:
+        direction (Direction): the current direction
+
+    Returns:
+        Direction: the direction
+    """
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_w] or keys[pygame.K_UP]:
+        return Direction.UP
+
+    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        return Direction.DOWN
+
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        return Direction.RIGHT
+
+    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+        return Direction.LEFT
+
+    return direction
+
 
 if __name__ == "__main__":
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
-    screen.fill("grey")
+
+    # initialise some variables
+    screen = pygame.display.set_mode((600, 600))
     clock = pygame.time.Clock()
-    dt = 0
-    speed = 50
-    running = True
+    running: bool = True
+    delta_time: float = 0
 
-    direction = DIRECTIONS[0]
-
+    # player vars
+    speed: int = 50
+    size: int = 10
+    direction: Direction = Direction.RIGHT
+    # set player position to middle of screen
     player_pos: pygame.Vector2 = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
+    # constant loop
     while running:
+        # handle events here
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            direction = DIRECTIONS[0]
-        if keys[pygame.K_s]:
-            direction = DIRECTIONS[3]
-        if keys[pygame.K_d]:
-            direction = DIRECTIONS[1]
-        if keys[pygame.K_a]:
-            direction = DIRECTIONS[2]
+        # move the player
+        direction = _get_direction(direction)
+        player_pos += DIRECTIONS[direction] * speed * delta_time
 
-        player_pos += (speed * direction[0] * dt, speed * direction[1] * dt)
-
+        # redraw the screen
+        # redraw the player at the new position
         screen.fill("grey")
-        pygame.draw.circle(screen, "red", player_pos, 10)
+        pygame.draw.circle(screen, "red", player_pos, size)
 
+        # KEEP AT THE END
+        # updates the screen with any rendering updates from above
+        # keeps the framerate constant and gets the time between each frame
         pygame.display.flip()
-        dt = clock.tick(60) / 1000
+        delta_time = clock.tick(60) / 1000
+
     pygame.quit()
